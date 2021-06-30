@@ -1,33 +1,33 @@
 package data
 
 import (
-	"encoding/json"
-	"io"
+	"context"
+	"gorest/configurations"
+	"gorest/models"
+	"log"
+
+	_ "github.com/denisenkom/go-mssqldb"
 )
 
-type Moviment struct {
-	Id    string  `json:"id"`
-	Value float32 `json:"value"`
-}
+func GetMoviment() models.Moviments {
 
-type Moviments []*Moviment
+	ctx := context.Background()
+	rows, err := configurations.DB.QueryContext(ctx, "SELECT * FROM Moviments")
+	if err != nil {
+		log.Fatal("Error on consulting: ", err.Error())
+	}
+	defer rows.Close()
 
-func (m *Moviments) ToJSON(w io.Writer) error {
-	e := json.NewEncoder(w)
-	return e.Encode(m)
-}
+	returnMoviment := []*models.Moviment{}
 
-func GetMoviment() Moviments {
-	return movimentList
-}
+	for rows.Next() {
+		mov := models.Moviment{}
+		rows.Scan(&mov.Id, &mov.Value)
 
-var movimentList = []*Moviment{
-	{
-		Id:    "1",
-		Value: 2.45,
-	},
-	{
-		Id:    "2",
-		Value: 3.50,
-	},
+		movJson := &models.Moviment{Id: mov.Id, Value: mov.Value}
+
+		returnMoviment = append(returnMoviment, movJson)
+	}
+
+	return returnMoviment
 }

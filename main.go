@@ -1,6 +1,7 @@
 package main
 
 import (
+	"gorest/configurations"
 	"gorest/handlers"
 	"log"
 	"net/http"
@@ -9,6 +10,8 @@ import (
 )
 
 func main() {
+
+	configurations.InitDatabase()
 
 	routes := mux.NewRouter().StrictSlash(true)
 
